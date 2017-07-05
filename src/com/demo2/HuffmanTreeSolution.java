@@ -167,7 +167,7 @@ public class HuffmanTreeSolution {
 			}
 			// condition for parent's sibling min 
 			if (!node.hasChildren()) {
-				if(node.isRight() && node.getData() == 0 && !node.hasChildren()) {
+				if(node.isRight()  && !node.hasChildren() && null != node.getParent().getParent() && node.getParent().getParent().getLeft().getData() <node.getData()) {
 					node.setData(node.getParent().getLeft().getData());
 				} else {
 					node.setData(node.getData() + 1);
@@ -177,7 +177,6 @@ public class HuffmanTreeSolution {
 			}
 			if(null != node.getParent() && null != node.getParent().getParent() && node.getParent().isRight() 
                     && !node.hasChildren() && node.getParent().getParent().getLeft().getData()< node.getData()) {
-			    node.setData(0);
 			    map.remove(node.getaPath());
                 removedNode.put(node.getaPath(), node.getData());
                 return;
@@ -192,10 +191,8 @@ public class HuffmanTreeSolution {
 		}
 		if(null != node) {
 			traverse(node.getRight());
-			if(node.hasLeft() && !node.getLeft().hasChildren() && node.getLeft().getData() < max && removedNode.containsKey(node.getRight().getaPath())){
+			if(node.hasLeft() && !node.getLeft().hasChildren() && node.getLeft().getData() <= max && removedNode.containsKey(node.getRight())){
 				traverse(node);
-				map.remove(node.getLeft().getaPath());
-				removedNode.put(node.getaPath(), node.getData());
 			}
 			if(node.getParent() !=null && node.hasChildren()) {
 				node.setData(node.getLeft().getData() + node.getRight().getData());
@@ -203,6 +200,7 @@ public class HuffmanTreeSolution {
 			
 		}
 	}
+
 	private static boolean checkSum() {
 		List<Integer> values = new ArrayList<Integer>(map.values());
 		int sum = 0;
