@@ -10,7 +10,7 @@ import java.util.Scanner;
 public class HuffmanTreeSolution {
 
 	private static int min =1, max=4, count=0, freq = 8, childNodes;
-	private static Map<String, Integer> map = new HashMap<String, Integer>();
+	private static Map<String, Integer> map = new HashMap<String, Integer>(), removedNode = new HashMap<String, Integer>();
 	public static void main(String[] args) {
 		int sum = 0;
 		int multiple =1;
@@ -159,37 +159,43 @@ public class HuffmanTreeSolution {
 			return; 
 		}
 		if(null != node) {
-			if(node.getLeft() == null || !map.containsKey(node.getLeft().getaPath())){
+			if(node.getLeft() == null || (!map.containsKey(node.getLeft().getaPath()) || removedNode.containsKey(node.getRight().getaPath()))){
 				traverse(node.getLeft());
 			}
 			if(!node.hasChildren() && node.getData() > max){
 				return;
 			}
 			// condition for parent's sibling min 
-			if(null != node.getParent() && null != node.getParent().getParent() && node.getParent().isRight() 
-					&& !node.hasChildren() && node.getParent().getParent().getLeft().getData()< node.getData()) {
-				return;
-			}
 			if (!node.hasChildren()) {
-				if(node.isRight() && node.getData() == 0) {
+				if(node.isRight() && node.getData() == 0 && !node.hasChildren()) {
 					node.setData(node.getParent().getLeft().getData());
 				} else {
 					node.setData(node.getData() + 1);
 				}
 				map.put(node.getaPath(), node.getData());
+				removedNode.remove(node.getaPath());
 			}
+			if(null != node.getParent() && null != node.getParent().getParent() && node.getParent().isRight() 
+                    && !node.hasChildren() && node.getParent().getParent().getLeft().getData()< node.getData()) {
+			    node.setData(0);
+			    map.remove(node.getaPath());
+                removedNode.put(node.getaPath(), node.getData());
+                return;
+            }
 			if(map.size() == childNodes) {
 				checkSum();
 				map.remove(node.getaPath());
+				removedNode.put(node.getaPath(), node.getData());
 				traverse(node);
 				return;
 			}
 		}
 		if(null != node) {
 			traverse(node.getRight());
-			if(node.hasLeft() && !node.getLeft().hasChildren() && node.getLeft().getData() < max){
+			if(node.hasLeft() && !node.getLeft().hasChildren() && node.getLeft().getData() < max && removedNode.containsKey(node.getRight().getaPath())){
 				traverse(node);
 				map.remove(node.getLeft().getaPath());
+				removedNode.put(node.getaPath(), node.getData());
 			}
 			if(node.getParent() !=null && node.hasChildren()) {
 				node.setData(node.getLeft().getData() + node.getRight().getData());
@@ -198,13 +204,16 @@ public class HuffmanTreeSolution {
 		}
 	}
 	private static boolean checkSum() {
-		List<Integer> values = (List<Integer>) map.values();
+		List<Integer> values = new ArrayList<Integer>(map.values());
 		int sum = 0;
 		for(Integer value: values) {
 			sum+=value;
 		}
-		if(sum == freq)
-			return true;
+		if(sum == freq){
+		    count++;
+		    return true;
+		}
+			
 		return false;
 	}
 }
