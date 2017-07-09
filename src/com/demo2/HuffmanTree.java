@@ -76,4 +76,10 @@ public class HuffmanTree {
 	public void setaPath(String aPath) {
 		this.aPath = aPath;
 	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return aPath+":"+data;
+	}
 }

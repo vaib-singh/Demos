@@ -1,24 +1,27 @@
 package com.demo2;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.Stack;
+import java.util.TreeMap;
 
 public class HuffmanTreeSolution {
 
-	private static int min =1, max=4, count=0, freq = 8, childNodes;
-	private static Map<String, Integer> map = new HashMap<String, Integer>(), removedNode = new HashMap<String, Integer>();
+	private static int count=0, freq = 100;
+	private static Map<Integer, List<Integer>>  map = new TreeMap<Integer, List<Integer>>();
+	private static Stack<HuffmanTree> left = new Stack<HuffmanTree>(), right = new Stack<HuffmanTree>();
 	public static void main(String[] args) {
-		int sum = 0;
-		int multiple =1;
 		Scanner scanner = new Scanner(System.in);
-		String input = scanner.nextLine();
+		String input = "";
+		int inputs = 0;
+		input = scanner.nextLine();
+		while(!input.equals("0")){
+		inputs++;
 		String[] values  = input.split(" ");
-		childNodes = values.length -1;
-		int noOfNodes = Integer.parseInt(values[0]);
 		HuffmanTree root = new HuffmanTree("");
 		root.setData(freq);
 		for(int i=1 ; i<values.length; i++) {
@@ -40,178 +43,192 @@ public class HuffmanTreeSolution {
 				}
 			}
 		}
+		root.setMinValue(freq);
+		root.setMaxValue(freq);
+		calculateTrees(root);
+		System.out.println("Case "+ inputs + ": "+ count);
+		count = 0;
+		left.clear();
+		right.clear();
+		input = scanner.nextLine();
+		}
 		scanner.close();
-		
-		traverse(root);
-		/*List<List<Integer>> combinations = new ArrayList<List<Integer>>();
-		while(true) {
-			if(root.getLeft().getData()!= 0) {
-				if(root.getLeft().hasChildren() && !root.getRight().hasChildren() && root.getLeft().getData() == root.getLeft().getMinValue())
-					break;
-				else if(root.getLeft().getData() == root.getLeft().getMaxValue()) 
-					break;
-			}
-			List<Integer> currentCombo = new ArrayList<Integer>();
-			traverse(root, currentCombo, combinations);
-		}
-		for (List<Integer> list : combinations) {
-			for (Integer value : list) {
-				multiple*=value;
-			}
-			sum+=multiple;
-			multiple = 1;
-		}
-		System.out.println(sum);*/
-		}
-	private static void traverse(HuffmanTree node, List<Integer> combination, List<List<Integer>> combinations) {
-		if(!node.hasChildren()) {
-			return;
-		}
-		if(node.getLeft().hasChildren() && !node.getRight().hasChildren()) {
-			HuffmanTree left = node.getLeft();
-			HuffmanTree right = node.getRight();
-			if(0 == left.getMinValue()) {
-				left.setMinValue(2);
-				right.setMaxValue(node.getData() - left.getMinValue());
-				left.setMaxValue(node.getData()/2);
-				right.setMinValue(node.getData() - left.getMaxValue());
-				left.setData(left.getMaxValue());
-				right.setData(right.getMinValue());
-			} else {
-				left.setData(left.getData() - 1);
-				right.setData(right.getData() + 1);
-				left.getLeft().setMinValue(0);
-			}
-		}
-		else if(node.getLeft().hasChildren() || node.getRight().hasChildren()) {
-			HuffmanTree left = node.getLeft();
-			HuffmanTree right = node.getRight();
-			if(0 == left.getMinValue()) {
-				if(node.getData() % 3 == 0 ) {
-					left.setMinValue(node.getData()/3);
-				} else {
-					left.setMinValue(node.getData()/3 + 1);
-				}
-				right.setMaxValue(node.getData() - left.getMinValue());
-				left.setMaxValue(node.getData()/2);
-				right.setMinValue(node.getData() - left.getMaxValue());
-				left.setData(left.getMinValue());
-				right.setData(right.getMaxValue());
-			} else {
-				left.setData(left.getData()+1);
-				right.setData(right.getData()-1);
-			}
-		}
-		if (node.hasChildren() && !node.getLeft().hasChildren() && !node.getRight().hasChildren()){
-			int mutipleValue = 0;
-			if(null == node.getParent()) {
-				combination.add(node.getData()/2);
-			}
-			else if(node.isLeft()) {
-				combination.add(node.getData()/2);
-			} else {
-				if(node.getData() == node.getParent().getLeft().getData()) {
-					mutipleValue = node.getData()/2;
-				}
-				else if((node.getData() % 2 ==0 && node.getParent().getLeft().getData() % 2 == 0)
-						|| (node.getData() %2 ==0 && node.getParent().getLeft().getData() % 2 != 0)) {
-					mutipleValue = node.getParent().getLeft().getData() - (node.getData()/2) +1;
-				} else {
-					mutipleValue = node.getParent().getLeft().getData() - (node.getData()/2);
-				}
-				if(0 == mutipleValue) {
-					mutipleValue = 1;
-				}
-				combination.add(mutipleValue);
-			}
-			return;
-		}
-		if (node != null) {
-			traverse(node.getLeft(), combination, combinations);
-		}
-		if (node != null) {
-			traverse(node.getRight(), combination, combinations);
-		}
-		if(node.getLeft().getMinValue() != 0 && node.getLeft().getMaxValue() >= node.getLeft().getData()) {
-			List<Integer> newCombination = new ArrayList<Integer>();
-			if(combinations.contains(combination)) {
-				List<Integer> combo  = combinations.get(combinations.indexOf(combination));
-				if (combo != combination) {
-					combinations.add(combination);
-					newCombination.addAll(combination);
-					newCombination.remove(newCombination.size() - 1);
-				} else 
-					return;
-			} else {
-				combinations.add(combination);
-				newCombination.addAll(combination);
-				newCombination.remove(newCombination.size() - 1);
-			}
-					
-			traverse(node, newCombination, combinations);
-		} else {
-			node.getLeft().setMinValue(0);
-		}
 	}
 
-	public static void traverse(HuffmanTree node) {
-		if(node== null) {
-			return; 
+	public static void populateTree(HuffmanTree node) {
+		if(!node.hasChildren()){
+			List<Integer> list = map.get(node.getaPath().length());
+			if(list == null) {
+				list = new ArrayList<>();
+			}
+			list.add(node.getData());
+			map.put(node.getaPath().length(), list);
+			return;
 		}
-		if(null != node) {
-			if(node.getLeft() == null || (!map.containsKey(node.getLeft().getaPath()) || removedNode.containsKey(node.getRight().getaPath()))){
-				traverse(node.getLeft());
-			}
-			if(!node.hasChildren() && node.getData() > max){
-				return;
-			}
-			// condition for parent's sibling min 
-			if (!node.hasChildren()) {
-				if(node.isRight()  && !node.hasChildren() && null != node.getParent().getParent() && node.getParent().getParent().getLeft().getData() <node.getData()) {
-					node.setData(node.getParent().getLeft().getData());
-				} else {
-					node.setData(node.getData() + 1);
-				}
-				map.put(node.getaPath(), node.getData());
-				removedNode.remove(node.getaPath());
-			}
-			if(null != node.getParent() && null != node.getParent().getParent() && node.getParent().isRight() 
-                    && !node.hasChildren() && node.getParent().getParent().getLeft().getData()< node.getData()) {
-			    map.remove(node.getaPath());
-                removedNode.put(node.getaPath(), node.getData());
-                return;
-            }
-			if(map.size() == childNodes) {
-				checkSum();
-				map.remove(node.getaPath());
-				removedNode.put(node.getaPath(), node.getData());
-				traverse(node);
-				return;
-			}
+		if(node.hasChildren()) {
+			populateTree(node.getLeft());
 		}
-		if(null != node) {
-			traverse(node.getRight());
-			if(node.hasLeft() && !node.getLeft().hasChildren() && node.getLeft().getData() <= max && removedNode.containsKey(node.getRight())){
-				traverse(node);
-			}
-			if(node.getParent() !=null && node.hasChildren()) {
+		if(node.hasChildren()) {
+			populateTree(node.getRight());
+			if(node.getParent() != null) {
 				node.setData(node.getLeft().getData() + node.getRight().getData());
+				List<Integer> list = map.get(node.getaPath().length());
+				if (list == null) {
+					list = new ArrayList<>();
+				}
+				list.add(node.getData());
+				map.put(node.getaPath().length(), list);
 			}
-			
 		}
 	}
 
-	private static boolean checkSum() {
-		List<Integer> values = new ArrayList<Integer>(map.values());
-		int sum = 0;
-		for(Integer value: values) {
-			sum+=value;
+	public static void validateHuffman(HuffmanTree node) throws Exception {
+		if(node == null) {
+			return;
 		}
-		if(sum == freq){
-		    count++;
-		    return true;
+		if(node != null) {
+			validateHuffman(node.getLeft());
+			if(node.hasChildren()){
+				if(node.getLeft().getData() > node.getRight().getData()){
+					throw new Exception("Tree not Huffman");
+				}
+			}
+			if(node.getParent()!=null && node.getParent().getParent() != null &&
+					node.getParent().isRight() && node.getParent().getParent().getLeft().getData() < node.getData()) {
+				throw new Exception("Tree not Huffman");
+			}
 		}
+		if(node != null) {
+			 validateHuffman(node.getRight());
+			 if(node.getParent()==null && node.getData() != node.getLeft().getData() + node.getRight().getData()) {
+				 throw new Exception("Invalid Huffman");
+			 }
+			 else if(node.getParent() == null) {
+				 validate2();
+			 }
+		}
+	}
+
+	private static void validate2() throws Exception {
+		for (Entry<Integer, List<Integer>> entry : map.entrySet()) {
+			List<Integer> actualValues = entry.getValue();
+			List<Integer> sortedValues = new ArrayList<>();
+			sortedValues.addAll(actualValues);
+			Collections.sort(sortedValues);
+			if(!sortedValues.equals(actualValues)) {
+				throw new Exception("Invalid order  huffman Tree");
+			}
+		}
+	}
+
+	public static void initializeTree(HuffmanTree node) {
+		if(null == node) {
+			return;
+		}
+		if(null != node) {
+			if(node.getParent()!= null){
+				getMinMaxValues(node);
+			}
+			initializeTree(node.getLeft());
+			if(!node.hasChildren()) {
+				node.setData(node.getMinValue());
+				left.push(node);
+			}
+		}
+		if(null != node) {
+			initializeTree(node.getRight());
+		}
+	}
+	
+	public static void calculateTrees(HuffmanTree root) {
+		initializeTree(root);
+		right.push(left.pop());
+		boolean complete = false;
+		HuffmanTree node;
+		List<HuffmanTree> constantNodes = new ArrayList<HuffmanTree>();
+		while(true) {
+			map.clear();
+			try {
+				populateTree(root);
+				validateHuffman(root);
+//				System.out.println("Valid");
+				count++;
+			} catch (Exception e) {
+//				System.out.println("Invalid");
+			}
+			if(left.peek().getData() >= left.peek().getMaxValue() && right.peek().getData() >= right.peek().getMaxValue()) {
+				node = right.pop();
+				node.setData(node.getMinValue());
+				right.push(node);
+				node = left.pop();
+				node.setData(node.getMinValue());
+				right.push(node);
+				int ct = 0;
+				constantNodes.clear();
+				while(right.size() !=1) {
+					if(left.size() == 0) {
+						complete = true;
+						break;
+					}
+					if(left.peek().getMinValue() == left.peek().getMaxValue() && !constantNodes.contains(left.peek())) {
+						constantNodes.add(left.peek());
+						right.push(left.pop());
+					}
+					else if(left.peek().getData()>= left.peek().getMaxValue() && !constantNodes.contains(left.peek())) {
+						node = left.pop();
+						node.setData(node.getMinValue());
+						right.push(node);
+					}
+					else {
+						if(left.peek().getData()< left.peek().getMaxValue() && ct ==0) {
+							node = left.pop();
+							node.setData(node.getData()+1);
+							left.push(node);
+							ct++;
+						}	
+						left.push(right.pop());
+					}
+				}
+				if(complete) {
+					break;
+				}
+			} 
+			else if(left.peek().getData() < left.peek().getMaxValue() && right.peek().getData()>= right.peek().getMaxValue()){
+				node = left.pop();
+				node.setData(node.getData()+1);
+				left.push(node);
+				node = right.pop();
+				node.setData(node.getMinValue());
+				right.push(node);
+			}
+			else if (right.peek().getData() >= right.peek().getMaxValue()) {
+				node = right.pop();
+				node.setData(node.getMinValue());
+				right.push(node);
+				
+			}
+			else if(right.peek().getData()< right.peek().getMaxValue()) {
+				node = right.pop();
+				node.setData(node.getData()+1);
+				right.push(node);
+			}
+	}
+	}
+	public static void getMinMaxValues(HuffmanTree node) {
+		if(node.isLeft()) {
+			node.setMaxValue(node.getParent().getMaxValue()/2);
+			if(node.getParent().getRight().hasChildren()) {
+				node.setMinValue((int) Math.ceil((double)node.getParent().getMinValue()/3));
+			}
+			else{
+				node.setMinValue(1);
+			}
+		}
+		if(node.isRight()){
+			node.setMinValue((int)Math.ceil((double)node.getParent().getMinValue()/2));
+			node.setMaxValue(node.getParent().getMaxValue() - node.getParent().getLeft().getMinValue());
 			
-		return false;
+		}
 	}
 }
+ 
