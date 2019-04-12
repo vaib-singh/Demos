@@ -1,5 +1,9 @@
 package com.demo;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 class Node {
@@ -30,28 +34,22 @@ class Node {
 public class PyramidProblem {
 	
 
-	public static int max = 0;
-	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
-		String input =  "215\n" + 
-						"192 124\n" + 
-						"117 269 442\n" + 
-						"218 836 347 235\n" + 
-						"320 805 522 417 345\n" + 
-						"229 601 728 835 133 124\n" + 
-						"248 202 277 433 207 263 257\n" + 
-						"359 464 504 528 516 716 871 182\n" + 
-						"461 441 426 656 863 560 380 171 923\n" + 
-						"381 348 573 533 448 632 387 176 975 449\n" + 
-						"223 711 445 645 245 543 931 532 937 541 444\n" + 
-						"330 131 333 928 376 733 017 778 839 168 197 197\n" + 
-						"131 171 522 137 217 224 291 413 528 520 227 229 928\n" + 
-						"223 626 034 683 839 052 627 310 713 999 629 817 410 121\n" + 
-						"924 622 911 233 325 139 721 218 253 223 107 233 230 124 233";
-		String[] lines = input.split("\r\n|\r|\n");
+		String fileName = "input.txt";
+		File file = new File(fileName);
+		FileReader fr = new FileReader(file);
+		BufferedReader br = new BufferedReader(fr);
+		String line;
+		String input = "";
+		int length=0;
+		while((line = br.readLine()) != null){
+		    input = input + line+"\n";
+		    length++;
+		}
+		br.close();
 		Scanner scanner = new Scanner(input);
-		Node a[][] = new Node[lines.length][lines.length];
+		Node a[][] = new Node[length][length];
 		for(int i =0; i < a.length; i++) {
 			for(int j = 0; j<=i; j++) {
 				Node n = new Node();
@@ -61,13 +59,6 @@ public class PyramidProblem {
 			}
 		}
 		scanner.close();
-		for(int i =0; i < a.length; i++) {
-			for(int j = 0; j<=i; j++) {
-				System.out.print(a[i][j] + " ");
-			}
-			System.out.println();
-		}
-		System.out.println();
 		
 		for (int i = a.length-2; i >= 0; i--) 
         { 
@@ -100,6 +91,8 @@ public class PyramidProblem {
 	private static boolean isEven(int num) {
 		return num%2==0;
 	}
+	
+	// used to print the status of the matrix
 	private static void printMatrix (Node[][] a) {
 		for(int i =0; i < a.length; i++) {
 			for(int j = 0; j<=i; j++) {
